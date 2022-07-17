@@ -1,0 +1,73 @@
+#container {
+    display: flex;
+}
+
+#editor {
+    width: 384px;
+    height: 256px;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+
+}
+
+.tile {
+    width: 32px;
+    height: 32px;
+    border: black 1px solid;
+    box-sizing: border-box;
+    text-align: center;
+}
+
+.tile:hover {
+    cursor: pointer;
+    filter: brightness(1.5);
+}
+
+#palette {
+    width: 512px;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+}
+
+.paletteTile {
+    width:32px;
+    height:32px;
+    border: black 1px solid;
+    box-sizing: border-box;
+}
+
+.paletteTile.selected {
+    border: red 2px solid;
+}
+
+.row {
+    display: flex;
+}
+
+.tilemode {
+
+}
+
+.objectmode {
+
+}
+
+.moveMode > .tile:not(move)::after{
+    content: "X";
+}
+
+.moveMode > .tile.move::after{
+    content: "O";
+}
+
+
+.moveMode > .tile:not(move)  {
+    box-shadow: inset 0 0 0 1000px rgba(255,50,50,0.3);
+}
+
+
+.moveMode > .tile.move{
+    box-shadow: inset 0 0 0 1000px rgba(50,255,50,0.3);
+}
