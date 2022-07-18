@@ -81,6 +81,8 @@ const EVENTS = ["blank", "image", "link", "sounds", "question", "portal", "spawn
 
 mapData.getMapData().tiles = mapData.mapInit(12,12);
 
+let isClicked = false;
+
 $(document).on("contextmenu", (e)=>{
     e.preventDefault();
 })
@@ -92,37 +94,55 @@ $(".modeChange").on("click" , (e) => {
     editor.getEditorState().currentMode = targetMode;
 });
 
-$(".tile").on("click", (e) => {
-    currentMode = editor.getEditorState().currentMode;
-    selectedTile = editor.getEditorState().selectedTile;
-    tilex = parseInt($(e.target).attr("tilex"));
-    tiley = parseInt($(e.target).attr("tiley"));
-    tile = mapData.getMapData().tiles[tiley][tilex];
+$(".tile").on("mousedown", (e) => {
 
-    if(currentMode == "moveMode"){
-        $(e.target).toggleClass("move");
-        tile.movable = !(tile.movable);
+    if(e.which == 1){
+
+        currentMode = editor.getEditorState().currentMode;
+        selectedTile = editor.getEditorState().selectedTile;
+        tilex = parseInt($(e.target).attr("tilex"));
+        tiley = parseInt($(e.target).attr("tiley"));
+        tile = mapData.getMapData().tiles[tiley][tilex];
+
+        isClicked = true;
+
+        if(currentMode === "moveMode"){
+            $(e.target).toggleClass("move");
+            tile.movable = !(tile.movable);
+        }
+
+        if(currentMode === "tileMode"){
+            tile.tileNo = selectedTile;
+            selectedPaletteTile = $(".paletteTile")[selectedTile];
+            $(e.target).css("background", $(selectedPaletteTile).css("background"));
+        }
     }
-
-    if(currentMode == "tileMode"){
-        tile.tileNo = selectedTile;
-        selectedPaletteTile = $(".paletteTile")[selectedTile];
-        $(e.target).css("background", $(selectedPaletteTile).css("background"));
-    }
-
-    console.log(tile);
 
 }).on("contextmenu", (e) => {
     e.preventDefault();
     
-    if(currentMode == "tileMode"){
+    if(currentMode === "tileMode"){
         tilex = parseInt($(e.target).attr("tilex"));
         tiley = parseInt($(e.target).attr("tiley"));
         tile = mapData.getMapData().tiles[tiley][tilex];
         $($(".paletteTile")[tile.tileNo]).trigger("click");
     }
         
-}).on("");
+}).on("mouseover", (e) => {
+    
+    if(currentMode === "tileMode" && isClicked == true){
+        tilex = parseInt($(e.target).attr("tilex"));
+        tiley = parseInt($(e.target).attr("tiley"));
+        tile = mapData.getMapData().tiles[tiley][tilex];
+        
+        tile.tileNo = selectedTile;
+        selectedPaletteTile = $(".paletteTile")[selectedTile];
+        $(e.target).css("background", $(selectedPaletteTile).css("background"));
+    }
+
+}).on("mouseup", (e) => {
+    isClicked = false;
+});
 
 
 for (i=0;i<480;i++){
@@ -137,6 +157,9 @@ $(".paletteTile").on("click", (e)=>{
     editor.getEditorState().selectedTile = tileNo;
     $(e.target).addClass("selected");
 });
+
+
+
 /*
 each tile has properties
 {
