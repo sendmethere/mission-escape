@@ -71,7 +71,9 @@ const mapData = (function(){
             }
             return tiles;
         },
-
+        tileInfo : (x, y) => {
+            return mapData.tiles[y][x];
+        }
     }
 
 })();
@@ -94,9 +96,10 @@ $(".modeChange").on("click" , (e) => {
     editor.getEditorState().currentMode = targetMode;
 });
 
-$(".tile").on("mousedown", (e) => {
+( () => {
+    $(".tile").on("mousedown", (e) => {
 
-    if(e.which == 1){
+        var tile, tilex, tiley, currentMode, selectedTile;
 
         currentMode = editor.getEditorState().currentMode;
         selectedTile = editor.getEditorState().selectedTile;
@@ -104,45 +107,56 @@ $(".tile").on("mousedown", (e) => {
         tiley = parseInt($(e.target).attr("tiley"));
         tile = mapData.getMapData().tiles[tiley][tilex];
 
-        isClicked = true;
+        if(e.which == 1){
 
-        if(currentMode === "moveMode"){
-            $(e.target).toggleClass("move");
-            tile.movable = !(tile.movable);
+                isClicked = true;
+
+                if(currentMode === "moveMode"){
+                    $(e.target).toggleClass("move");
+                    tile.movable = !(tile.movable);
+                }
+
+                if(currentMode === "tileMode"){
+                    tile.tileNo = selectedTile;
+                    selectedPaletteTile = $(".paletteTile")[selectedTile];
+                    $(e.target).css("background", $(selectedPaletteTile).css("background"));
+                }
         }
 
+    }).on("contextmenu", (e) => {
+        e.preventDefault();
+        
+        currentMode = editor.getEditorState().currentMode;
         if(currentMode === "tileMode"){
+            
+            currentMode = editor.getEditorState().currentMode;
+            selectedTile = editor.getEditorState().selectedTile;
+            tilex = parseInt($(e.target).attr("tilex"));
+            tiley = parseInt($(e.target).attr("tiley"));
+            tile = mapData.getMapData().tiles[tiley][tilex];
+            $($(".paletteTile")[tile.tileNo]).trigger("click");
+        }
+            
+    }).on("mouseover", (e) => {
+        
+        currentMode = editor.getEditorState().currentMode;
+        if(currentMode === "tileMode" && isClicked == true){
+            
+            currentMode = editor.getEditorState().currentMode;
+            selectedTile = editor.getEditorState().selectedTile;
+            tilex = parseInt($(e.target).attr("tilex"));
+            tiley = parseInt($(e.target).attr("tiley"));
+            tile = mapData.getMapData().tiles[tiley][tilex];
+            
             tile.tileNo = selectedTile;
             selectedPaletteTile = $(".paletteTile")[selectedTile];
             $(e.target).css("background", $(selectedPaletteTile).css("background"));
         }
-    }
 
-}).on("contextmenu", (e) => {
-    e.preventDefault();
-    
-    if(currentMode === "tileMode"){
-        tilex = parseInt($(e.target).attr("tilex"));
-        tiley = parseInt($(e.target).attr("tiley"));
-        tile = mapData.getMapData().tiles[tiley][tilex];
-        $($(".paletteTile")[tile.tileNo]).trigger("click");
-    }
-        
-}).on("mouseover", (e) => {
-    
-    if(currentMode === "tileMode" && isClicked == true){
-        tilex = parseInt($(e.target).attr("tilex"));
-        tiley = parseInt($(e.target).attr("tiley"));
-        tile = mapData.getMapData().tiles[tiley][tilex];
-        
-        tile.tileNo = selectedTile;
-        selectedPaletteTile = $(".paletteTile")[selectedTile];
-        $(e.target).css("background", $(selectedPaletteTile).css("background"));
-    }
-
-}).on("mouseup", (e) => {
-    isClicked = false;
-});
+    }).on("mouseup", (e) => {
+        isClicked = false;
+    });
+})();
 
 
 for (i=0;i<480;i++){
@@ -153,7 +167,7 @@ for (i=0;i<480;i++){
 
 $(".paletteTile").on("click", (e)=>{
     $($(".paletteTile")[editor.getEditorState().selectedTile]).removeClass("selected");
-    tileNo = parseInt($(e.target).attr("tileNo"));
+    var tileNo = parseInt($(e.target).attr("tileNo"));
     editor.getEditorState().selectedTile = tileNo;
     $(e.target).addClass("selected");
 });
